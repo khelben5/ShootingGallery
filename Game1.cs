@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -53,8 +54,11 @@ public class Game1 : Game
         mouseState = Mouse.GetState();
         if (mouseState.LeftButton == ButtonState.Pressed && mouseReleased)
         {
-            score++;
             mouseReleased = false;
+            if (hasHitTarget(mouseState.Position.ToVector2()))
+            {
+                score++;
+            }
         }
 
         if (mouseState.LeftButton == ButtonState.Released)
@@ -72,9 +76,19 @@ public class Game1 : Game
         _spriteBatch.Begin();
         _spriteBatch.Draw(backgroundSprite, new Vector2(0, 0), Color.White);
         _spriteBatch.DrawString(gameFont, score.ToString(), new Vector2(100, 100), Color.White);
-        _spriteBatch.Draw(targetSprite, targetPosition, Color.White);
+        _spriteBatch.Draw(targetSprite, computeTargetRenderPosition(), Color.White);
         _spriteBatch.End();
 
         base.Draw(gameTime);
+    }
+
+    private bool hasHitTarget(Vector2 position)
+    {
+        return Vector2.Distance(targetPosition, position) <= targetRadius;
+    }
+
+    private Vector2 computeTargetRenderPosition()
+    {
+        return new Vector2(targetPosition.X - targetRadius, targetPosition.Y - targetRadius);
     }
 }
