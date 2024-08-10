@@ -58,6 +58,10 @@ public class Game1 : Game
             if (hasHitTarget(mouseState.Position.ToVector2()))
             {
                 score++;
+
+                Random random = new Random();
+                targetPosition.X = random.Next(0, _graphics.PreferredBackBufferWidth);
+                targetPosition.Y = random.Next(0, _graphics.PreferredBackBufferHeight);
             }
         }
 
@@ -72,6 +76,7 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+
 
         _spriteBatch.Begin();
         _spriteBatch.Draw(backgroundSprite, new Vector2(0, 0), Color.White);
