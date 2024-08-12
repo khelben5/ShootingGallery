@@ -21,12 +21,12 @@ public class Game1 : Game
     private MouseState mouseState;
     private int score = 0;
     private bool mouseReleased = true;
+    private double remainingTimeInSeconds = 10;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
     }
 
     protected override void Initialize()
@@ -51,11 +51,13 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        updateTime(gameTime);
+
         mouseState = Mouse.GetState();
         if (mouseState.LeftButton == ButtonState.Pressed && mouseReleased)
         {
             mouseReleased = false;
-            if (hasHitTarget(mouseState.Position.ToVector2()))
+            if (hasHitTarget(mouseState.Position.ToVector2()) && remainingTimeInSeconds > 0)
             {
                 score++;
 
@@ -73,6 +75,16 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
+    private void updateTime(GameTime gameTime)
+    {
+        if (remainingTimeInSeconds - gameTime.ElapsedGameTime.TotalSeconds < 0)
+        {
+            remainingTimeInSeconds = 0;
+            return;
+        }
+        remainingTimeInSeconds -= gameTime.ElapsedGameTime.TotalSeconds;
+    }
+
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -80,8 +92,21 @@ public class Game1 : Game
 
         _spriteBatch.Begin();
         _spriteBatch.Draw(backgroundSprite, new Vector2(0, 0), Color.White);
-        _spriteBatch.DrawString(gameFont, score.ToString(), new Vector2(100, 100), Color.White);
-        _spriteBatch.Draw(targetSprite, computeTargetRenderPosition(), Color.White);
+        _spriteBatch.DrawString(gameFont, "Score: " + score.ToString(), new Vector2(3, 3), Color.White);
+        _spriteBatch.DrawString(
+            gameFont,
+            "Time: " + Math.Ceiling(remainingTimeInSeconds).ToString(),
+            new Vector2(3, 40),
+            Color.White
+        );
+
+        if (remainingTimeInSeconds > 0)
+        {
+            _spriteBatch.Draw(targetSprite, computeTargetRenderPosition(), Color.White);
+        }
+
+        _spriteBatch.Draw(crosshairsSprite, new Vector2(mouseState.X - 25, mouseState.Y - 25), Color.White);
+
         _spriteBatch.End();
 
         base.Draw(gameTime);
